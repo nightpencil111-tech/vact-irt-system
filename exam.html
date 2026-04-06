@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>V-ACT - Bài thi Đánh giá năng lực</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-slate-50 text-slate-800 h-screen flex flex-col font-sans selection:bg-blue-200">
+
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-4 w-1/3">
+                <div class="bg-blue-600 text-white p-2 rounded-lg"><i class="fas fa-graduation-cap"></i></div>
+                <span class="font-bold tracking-tight">V-ACT TEST</span>
+            </div>
+            
+            <div class="w-1/3 flex flex-col items-center">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Tiến độ</span>
+                <div class="w-full bg-slate-100 rounded-full h-2">
+                    <div id="progressBar" class="bg-blue-600 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="w-1/3 flex justify-end">
+                <div class="bg-red-50 text-red-600 px-4 py-2 rounded-full font-mono font-bold text-lg flex items-center gap-2 border border-red-100">
+                    <i class="far fa-clock"></i> <span id="timer">45:00</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 overflow-y-auto py-10">
+        <div class="max-w-3xl mx-auto px-6" id="questionContainer">
+            <div class="text-center py-20 text-slate-400">
+                <i class="fas fa-spinner fa-spin text-4xl mb-4 text-blue-600"></i>
+                <p>Đang tải đề thi từ hệ thống AI...</p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 py-4 px-6 fixed bottom-0 w-full">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <button onclick="prevQuestion()" id="btnPrev" class="px-6 py-3 rounded-xl font-bold text-slate-500 hover:bg-slate-100 transition disabled:opacity-50 disabled:cursor-not-allowed">
+                <i class="fas fa-arrow-left mr-2"></i> Câu trước
+            </button>
+            <span class="font-medium text-slate-500 bg-slate-100 px-4 py-1 rounded-full text-sm">
+                Câu <span id="currentQText" class="font-bold text-blue-600">1</span> / <span id="totalQText">10</span>
+            </span>
+            <button onclick="nextQuestion()" id="btnNext" class="px-6 py-3 rounded-xl font-bold bg-blue-600 text-white hover:bg-blue-700 transition shadow-lg shadow-blue-200">
+                Câu tiếp theo <i class="fas fa-arrow-right ml-2"></i>
+            </button>
+            <button onclick="submitExam()" id="btnSubmit" class="hidden px-8 py-3 rounded-xl font-bold bg-emerald-500 text-white hover:bg-emerald-600 transition shadow-lg shadow-emerald-200">
+                Nộp bài ngay <i class="fas fa-check-circle ml-2"></i>
+            </button>
+        </div>
+    </footer>
+
+    <script>
+        let questions = [];
+        let currentIndex = 0;
+        let userAnswers = {}; // Lưu đáp án: { id_cau_hoi: "A" }
+
+        // Gọi API lấy đề thi
+        async function fetchExam() {
+            const res = await fetch('/api/exam');
+            questions = await res.json();
+            document.getElementById('totalQText').innerText = questions.length;
+            renderQuestion();
+            startTimer(45 * 60); // 45 phút
+        }
+
+        // Hiển thị câu hỏi hiện tại
+        function renderQuestion() {
+            const q = questions[currentIndex];
+            const container = document.getElementById('questionContainer');
+            
+            // Cập nhật thanh tiến trình
+            const progress = ((currentIndex) / questions.length) * 100;
+            document.getElementById('progressBar').style.width = `${progress}%`;
+            document.getElementById('currentQText').innerText = currentIndex + 1;
+
+            let html = `
+                <div class="mb-8 animate-[fadeIn_0.3s_ease-out]">
+                    <h2 class="text-2xl font-bold text-slate-800 leading-relaxed mb-8">
+                        <span class="text-blue-600 mr-2">Câu ${currentIndex + 1}:</span>${q.content}
+                    </h2>
+                    <div class="space-y-4">
+            `;
+
+            const options = ['A', 'B', 'C', 'D'];
+            options.forEach(opt => {
+                const isSelected = userAnswers[q.id] === opt;
+                html += `
+                    <label class="block w-full cursor-pointer relative">
+                        <input type="radio" name="q${q.id}" value="${opt}" class="peer hidden" onchange="selectAnswer(${q.id}, '${opt}')" ${isSelected ? 'checked' : ''}>
+                        <div class="p-5 rounded-2xl border-2 transition-all duration-200 flex items-center gap-4
+                            ${isSelected ? 'border-blue-600 bg-blue-50' : 'border-slate-200 bg-white hover:border-blue-300 hover:bg-slate-50'}">
+                            <span class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm
+                                ${isSelected ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500'}">${opt}</span>
+                            <span class="${isSelected ? 'font-medium text-blue-900' : 'text-slate-700'}">${q.options[opt]}</span>
+                        </div>
+                    </label>
+                `;
+            });
+
+            html += `</div></div>`;
+            container.innerHTML = html;
+
+            // Xử lý nút bấm
+            document.getElementById('btnPrev').disabled = currentIndex === 0;
+            
+            if (currentIndex === questions.length - 1) {
+                document.getElementById('btnNext').classList.add('hidden');
+                document.getElementById('btnSubmit').classList.remove('hidden');
+            } else {
+                document.getElementById('btnNext').classList.remove('hidden');
+                document.getElementById('btnSubmit').classList.add('hidden');
+            }
+        }
+
+        // Lưu đáp án
+        function selectAnswer(qId, ans) {
+            userAnswers[qId] = ans;
+            // Highlight lại UI ngay lập tức
+            renderQuestion(); 
+        }
+
+        function nextQuestion() {
+            if (currentIndex < questions.length - 1) { currentIndex++; renderQuestion(); }
+        }
+        function prevQuestion() {
+            if (currentIndex > 0) { currentIndex--; renderQuestion(); }
+        }
+
+        // Gửi bài lên Backend
+        async function submitExam() {
+            if(!confirm("Bạn đã chắc chắn muốn nộp bài? Bạn không thể sửa lại sau khi nộp.")) return;
+            
+            const payload = {
+                student_name: "Học sinh Ảo",
+                answers: userAnswers
+            };
+
+            const res = await fetch('/api/submit'), {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+
+            const result = await res.json();
+            alert(`Nộp bài thành công!\nSố câu đúng: ${result.raw_score}\nĐiểm IRT (Năng lực): ${result.estimated_theta}`);
+        }
+
+        // Đồng hồ đếm ngược
+        function startTimer(duration) {
+            let timer = duration, minutes, seconds;
+            setInterval(function () {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+                document.getElementById('timer').textContent = minutes + ":" + seconds;
+                if (--timer < 0) {
+                    alert("Hết giờ làm bài!");
+                    submitExam();
+                }
+            }, 1000);
+        }
+
+        // Tailwind custom animation
+        tailwind.config = { theme: { extend: { keyframes: { fadeIn: { '0%': { opacity: '0', transform: 'translateY(10px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } } } } } }
+
+        window.onload = fetchExam;
+    </script>
+</body>
+</html>

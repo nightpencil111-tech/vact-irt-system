@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V-ACT Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="container mx-auto p-6">
+        <h1 class="text-3xl font-bold text-blue-800 mb-8 text-center">🏦 Ngân hàng đề thi V-ACT (Admin)</h1>
+
+        <div class="bg-white p-6 rounded-lg shadow-md mb-10">
+            <h2 class="text-xl font-semibold mb-4 text-gray-700">➕ Thêm câu hỏi mới & Tự động phân loại</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <textarea id="content" placeholder="Nội dung câu hỏi..." class="p-3 border rounded-md md:col-span-2 h-24"></textarea>
+                <input id="optA" type="text" placeholder="Đáp án A" class="p-2 border rounded-md">
+                <input id="optB" type="text" placeholder="Đáp án B" class="p-2 border rounded-md">
+                <input id="optC" type="text" placeholder="Đáp án C" class="p-2 border rounded-md">
+                <input id="optD" type="text" placeholder="Đáp án D" class="p-2 border rounded-md">
+                <select id="correct" class="p-2 border rounded-md bg-white">
+                    <option value="">Chọn đáp án đúng</option>
+                    <option value="A">A</option><option value="B">B</option>
+                    <option value="C">C</option><option value="D">D</option>
+                </select>
+                <button onclick="addQuestion()" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-700 transition">
+                    Lưu & Phân loại bằng AI
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold mb-4 text-gray-700">📋 Danh sách câu hỏi hiện có</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-200">
+                            <th class="p-3 border">ID</th>
+                            <th class="p-3 border w-1/2">Nội dung</th>
+                            <th class="p-3 border">Độ khó (b)</th>
+                            <th class="p-3 border">Phân biệt (a)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="questionTable">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "http://127.0.0.1:8000";
+
+        // Hàm lấy danh sách câu hỏi
+        async function fetchQuestions() {
+            const res = await fetch(`${API_URL}/questions/`); // Bạn cần viết thêm API GET này
+            const data = await res.json();
+            const table = document.getElementById('questionTable');
+            table.innerHTML = data.map(q => `
+                <tr class="hover:bg-gray-50">
+                    <td class="p-3 border text-center font-bold">${q.id}</td>
+                    <td class="p-3 border">${q.content}</td>
+                    <td class="p-3 border text-center text-red-600 font-bold">${q.param_b.toFixed(2)}</td>
+                    <td class="p-3 border text-center text-green-600 font-bold">${q.param_a.toFixed(2)}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Hàm thêm câu hỏi
+        async function addQuestion() {
+            const payload = {
+                content: document.getElementById('content').value,
+                option_a: document.getElementById('optA').value,
+                option_b: document.getElementById('optB').value,
+                option_c: document.getElementById('optC').value,
+                option_d: document.getElementById('optD').value,
+                correct_answer: document.getElementById('correct').value
+            };
+
+            const res = await fetch(`${API_URL}/add-and-classify/`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+
+            if (res.ok) {
+                alert("Đã thêm và AI đã phân loại độ khó thành công!");
+                location.reload(); // Tải lại trang để cập nhật bảng
+            }
+        }
+
+        window.onload = fetchQuestions;
+    </script>
+</body>
+</html>

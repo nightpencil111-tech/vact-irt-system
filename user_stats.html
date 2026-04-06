@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thống kê Kết quả - V-ACT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                    colors: { primary: '#4F46E5', surface: '#F8FAFC' }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Tùy chỉnh thanh cuộn cho mượt mà giống bản thiết kế */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+    </style>
+</head>
+<body class="bg-[#F1F5F9] text-slate-800 flex h-screen overflow-hidden">
+
+    <aside class="w-64 bg-white border-r border-slate-100 flex flex-col h-full z-10 shadow-sm">
+        <div class="p-6 flex items-center gap-3">
+            <div class="bg-primary p-2 rounded-xl text-white shadow-lg shadow-indigo-200">
+                <i class="fas fa-layer-group text-xl"></i>
+            </div>
+            <span class="text-xl font-bold tracking-tight">V-ACT<span class="text-primary">.Edu</span></span>
+        </div>
+        
+        <nav class="flex-1 px-4 space-y-2 overflow-y-auto mt-4">
+            <p class="px-4 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Quản lý</p>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-2xl transition-all font-medium">
+                <i class="fas fa-home w-5"></i> Tổng quan
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 bg-indigo-50 text-primary rounded-2xl transition-all font-semibold shadow-sm">
+                <i class="fas fa-chart-line w-5"></i> Thống kê kết quả
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-2xl transition-all font-medium">
+                <i class="fas fa-database w-5"></i> Ngân hàng đề
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-2xl transition-all font-medium">
+                <i class="fas fa-users w-5"></i> Học viên
+            </a>
+        </nav>
+    </aside>
+
+    <main class="flex-1 flex flex-col h-full relative overflow-y-auto">
+        
+        <header class="bg-white/80 backdrop-blur-md sticky top-0 z-20 border-b border-slate-100 px-8 py-4 flex justify-between items-center">
+            <div class="relative w-96">
+                <i class="fas fa-search absolute left-4 top-3.5 text-slate-400"></i>
+                <input type="text" placeholder="Tìm kiếm học viên, bài thi..." class="w-full bg-slate-100 border-none rounded-full py-2.5 pl-11 pr-4 text-sm focus:ring-2 focus:ring-primary outline-none transition-all">
+            </div>
+            <div class="flex items-center gap-5">
+                <button class="relative text-slate-400 hover:text-slate-600 transition">
+                    <i class="far fa-bell text-xl"></i>
+                    <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+                </button>
+                <div class="flex items-center gap-3 border-l border-slate-200 pl-5 cursor-pointer">
+                    <img src="https://ui-avatars.com/api/?name=Admin+VACT&background=E0E7FF&color=4F46E5" class="w-9 h-9 rounded-full object-cover">
+                    <div class="hidden md:block">
+                        <p class="text-sm font-bold text-slate-700">Admin V-ACT</p>
+                        <p class="text-xs text-slate-400">Quản trị viên</p>
+                    </div>
+                    <i class="fas fa-chevron-down text-slate-400 text-xs"></i>
+                </div>
+            </div>
+        </header>
+
+        <div class="p-8 max-w-7xl mx-auto w-full space-y-8">
+            
+            <div class="flex justify-between items-end">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-800 mb-1">Phân tích Năng lực Học viên</h1>
+                    <p class="text-sm text-slate-500">Dữ liệu đánh giá dựa trên mô hình IRT 3PL</p>
+                </div>
+                <div class="flex gap-2">
+                    <button class="px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 shadow-sm"><i class="fas fa-filter mr-2"></i>Bộ lọc</button>
+                    <button class="px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 shadow-sm"><i class="fas fa-download mr-2"></i>Xuất file</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-slate-500 font-medium mb-1">Năng lực trung bình (θ)</p>
+                        <h3 class="text-3xl font-bold text-slate-800">+1.25</h3>
+                        <p class="text-xs text-emerald-500 font-medium mt-2"><i class="fas fa-arrow-up mr-1"></i>0.15 so với tháng trước</p>
+                    </div>
+                    <div class="w-16 h-16 relative">
+                        <canvas id="miniChart1"></canvas>
+                        <div class="absolute inset-0 flex items-center justify-center text-primary font-bold text-sm">75%</div>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-slate-500 font-medium mb-1">Tỉ lệ hoàn thành</p>
+                        <h3 class="text-3xl font-bold text-slate-800">92.4%</h3>
+                        <p class="text-xs text-emerald-500 font-medium mt-2"><i class="fas fa-arrow-up mr-1"></i>3.2% so với tháng trước</p>
+                    </div>
+                    <div class="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-500 text-2xl">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-slate-500 font-medium mb-1">Lượt thi tuần này</p>
+                        <h3 class="text-3xl font-bold text-slate-800">1,450</h3>
+                        <p class="text-xs text-red-500 font-medium mt-2"><i class="fas fa-arrow-down mr-1"></i>12 lượt so với tuần trước</p>
+                    </div>
+                    <div class="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center text-orange-500 text-2xl">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex items-center justify-between">
+                    <div>
+                        <p class="text-sm text-slate-500 font-medium mb-1">Thời gian TB / Đề</p>
+                        <h3 class="text-3xl font-bold text-slate-800">42<span class="text-lg text-slate-400 font-medium ml-1">phút</span></h3>
+                        <p class="text-xs text-slate-400 font-medium mt-2">Đề tiêu chuẩn 60 phút</p>
+                    </div>
+                    <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 text-2xl">
+                        <i class="fas fa-stopwatch"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="font-bold text-slate-800">Phân bố Năng lực (Đường cong IRT)</h3>
+                        <select class="bg-slate-50 border border-slate-200 text-sm rounded-lg px-3 py-1.5 outline-none">
+                            <option>Tháng này</option>
+                            <option>Tháng trước</option>
+                        </select>
+                    </div>
+                    <div class="h-[280px] w-full">
+                        <canvas id="mainAreaChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+                    <h3 class="font-bold text-slate-800 mb-6">Mức độ hoàn thành theo chủ đề</h3>
+                    <div class="space-y-5">
+                        <div>
+                            <div class="flex justify-between text-sm mb-1"><span class="font-medium text-slate-700">Tư duy logic</span><span class="font-bold">85%</span></div>
+                            <div class="w-full bg-slate-100 rounded-full h-2.5"><div class="bg-primary h-2.5 rounded-full" style="width: 85%"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-sm mb-1"><span class="font-medium text-slate-700">Toán học</span><span class="font-bold">72%</span></div>
+                            <div class="w-full bg-slate-100 rounded-full h-2.5"><div class="bg-emerald-400 h-2.5 rounded-full" style="width: 72%"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-sm mb-1"><span class="font-medium text-slate-700">Ngôn ngữ</span><span class="font-bold">60%</span></div>
+                            <div class="w-full bg-slate-100 rounded-full h-2.5"><div class="bg-orange-400 h-2.5 rounded-full" style="width: 60%"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-sm mb-1"><span class="font-medium text-slate-700">Khoa học</span><span class="font-bold">90%</span></div>
+                            <div class="w-full bg-slate-100 rounded-full h-2.5"><div class="bg-purple-500 h-2.5 rounded-full" style="width: 90%"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden mb-8">
+                <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                    <h3 class="font-bold text-slate-800">Lịch sử làm bài gần đây</h3>
+                    <div class="flex items-center gap-2 text-sm text-slate-500">
+                        Hiển thị <select class="bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 outline-none"><option>5</option><option>10</option></select> kết quả
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm whitespace-nowrap">
+                        <thead class="bg-slate-50 text-slate-500">
+                            <tr>
+                                <th class="p-4 font-medium pl-6">Học viên <i class="fas fa-sort ml-1 text-slate-300"></i></th>
+                                <th class="p-4 font-medium">Mã Đề <i class="fas fa-sort ml-1 text-slate-300"></i></th>
+                                <th class="p-4 font-medium text-center">Năng lực (θ)</th>
+                                <th class="p-4 font-medium">Thời gian</th>
+                                <th class="p-4 font-medium text-center">Phân loại</th>
+                                <th class="p-4 font-medium text-center pr-6">Chi tiết</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-slate-700">
+                            <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition">
+                                <td class="p-4 pl-6 font-bold flex items-center gap-3">
+                                    <img src="https://ui-avatars.com/api/?name=Nguyen+Van+A&background=random" class="w-8 h-8 rounded-full"> Nguyễn Văn A
+                                </td>
+                                <td class="p-4 text-slate-500">#VACT-2026</td>
+                                <td class="p-4 text-center font-mono font-bold text-emerald-600">+2.15</td>
+                                <td class="p-4 text-slate-500">45 phút</td>
+                                <td class="p-4 text-center"><span class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-700">Xuất sắc</span></td>
+                                <td class="p-4 text-center pr-6"><button class="text-slate-400 hover:text-primary"><i class="fas fa-ellipsis-h"></i></button></td>
+                            </tr>
+                            <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition">
+                                <td class="p-4 pl-6 font-bold flex items-center gap-3">
+                                    <img src="https://ui-avatars.com/api/?name=Tran+Thi+B&background=random" class="w-8 h-8 rounded-full"> Trần Thị B
+                                </td>
+                                <td class="p-4 text-slate-500">#VACT-2026</td>
+                                <td class="p-4 text-center font-mono font-bold text-primary">+1.02</td>
+                                <td class="p-4 text-slate-500">55 phút</td>
+                                <td class="p-4 text-center"><span class="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700">Khá giỏi</span></td>
+                                <td class="p-4 text-center pr-6"><button class="text-slate-400 hover:text-primary"><i class="fas fa-ellipsis-h"></i></button></td>
+                            </tr>
+                            <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition">
+                                <td class="p-4 pl-6 font-bold flex items-center gap-3">
+                                    <img src="https://ui-avatars.com/api/?name=Le+Van+C&background=random" class="w-8 h-8 rounded-full"> Lê Văn C
+                                </td>
+                                <td class="p-4 text-slate-500">#LOGIC-01</td>
+                                <td class="p-4 text-center font-mono font-bold text-orange-500">-0.50</td>
+                                <td class="p-4 text-slate-500">60 phút</td>
+                                <td class="p-4 text-center"><span class="px-3 py-1 rounded-full text-xs font-bold bg-orange-100 text-orange-700">Cần cố gắng</span></td>
+                                <td class="p-4 text-center pr-6"><button class="text-slate-400 hover:text-primary"><i class="fas fa-ellipsis-h"></i></button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+    Chart.defaults.font.family = '"Plus Jakarta Sans", sans-serif';
+    Chart.defaults.color = '#64748B';
+
+    // Hàm gọi API và vẽ toàn bộ Dashboard
+    async function loadRealData() {
+        try {
+            const res = await fetch('/api/dashboard-stats');
+            const data = await res.json();
+
+            // 1. Cập nhật các con số Thống kê
+            document.getElementById('txtAvgTheta').innerText = (data.avg_theta > 0 ? "+" : "") + data.avg_theta;
+            document.getElementById('txtTotalSubs').innerText = data.total;
+
+            // 2. Cập nhật Bảng dữ liệu gần đây
+            const tbody = document.getElementById('recentTable');
+            tbody.innerHTML = data.recent.map(s => `
+                <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition">
+                    <td class="p-4 pl-6 font-bold flex items-center gap-3">
+                        <img src="https://ui-avatars.com/api/?name=${s.name.replace(' ', '+')}&background=random" class="w-8 h-8 rounded-full"> ${s.name}
+                    </td>
+                    <td class="p-4 text-slate-500">${s.code}</td>
+                    <td class="p-4 text-center font-mono font-bold ${s.theta >= 0 ? 'text-emerald-600' : 'text-orange-500'}">
+                        ${(s.theta > 0 ? "+" : "") + s.theta.toFixed(2)}
+                    </td>
+                    <td class="p-4 text-slate-500">${s.raw}</td>
+                    <td class="p-4 text-center"><span class="px-3 py-1 rounded-full text-xs font-bold ${s.rank_css}">${s.rank_name}</span></td>
+                    <td class="p-4 text-center pr-6"><button class="text-slate-400 hover:text-primary"><i class="fas fa-ellipsis-h"></i></button></td>
+                </tr>
+            `).join('');
+
+            // 3. Vẽ lại biểu đồ hình chuông (Area Chart) với dữ liệu thực
+            const ctxArea = document.getElementById('mainAreaChart').getContext('2d');
+            let gradientFill = ctxArea.createLinearGradient(0, 0, 0, 300);
+            gradientFill.addColorStop(0, 'rgba(79, 70, 229, 0.2)');
+            gradientFill.addColorStop(1, 'rgba(79, 70, 229, 0)');
+
+            new Chart(ctxArea, {
+                type: 'line',
+                data: {
+                    labels: ['-3', '-2', '-1', '0', '+1', '+2', '+3'],
+                    datasets: [{
+                        label: 'Số lượng học viên',
+                        data: data.distribution, // <--- DỮ LIỆU THẬT ĐƯỢC BƠM VÀO ĐÂY
+                        borderColor: '#4F46E5', backgroundColor: gradientFill,
+                        borderWidth: 3, fill: true, tension: 0.4,
+                        pointBackgroundColor: '#FFFFFF', pointBorderColor: '#4F46E5',
+                        pointBorderWidth: 2, pointRadius: 4, pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { x: { grid: { display: false } }, y: { beginAtZero: true, grid: { borderDash: [5, 5] } } }
+                }
+            });
+
+            // Vẽ Mini Chart (Demo cứng 75%)
+            new Chart(document.getElementById('miniChart1'), {
+                type: 'doughnut',
+                data: { datasets: [{ data: [75, 25], backgroundColor: ['#4F46E5', '#EEF2FF'], borderWidth: 0, cutout: '75%', borderRadius: [10, 0] }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { tooltip: { enabled: false } } }
+            });
+
+        } catch (error) {
+            console.error("Lỗi khi tải dữ liệu:", error);
+        }
+    }
+
+    // Khởi chạy khi load trang
+    window.onload = loadRealData;
+</script>
+</body>
+</html>
