@@ -27,6 +27,7 @@ from typing import List, Dict
 import numpy as np
 from scipy.optimize import minimize
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import RedirectResponse
 
 # CẤU HÌNH API KEY (Thay đoạn text bên dưới bằng Key thật của bạn)
 genai.configure(api_key="AIzaSyBISxbNPJWaeXQwFhJqhZAwfbfn-eiGLiE")
@@ -95,9 +96,12 @@ async def calculate_vact_score(submission: ExamSubmission):
         "vact_score": vact_score
     }
 
-@app.get("/")
-async def root():
-    return {"message": "Chào mừng đến với API chấm điểm V-ACT bằng IRT!"}
+# CẬP NHẬT LẠI ROUTE TRANG CHỦ
+@app.get("/", response_class=HTMLResponse)
+async def serve_index_page():
+    base_path = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(base_path, "index.html")
+    return FileResponse(file_path)
 
 @app.post("/questions/")
 async def create_question(question: QuestionCreate, db: Session = Depends(get_db)):
