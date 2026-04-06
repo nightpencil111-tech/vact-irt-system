@@ -234,14 +234,24 @@
     // Hàm gọi API và vẽ toàn bộ Dashboard
     async function loadRealData() {
         try {
+            // SỬA LẠI ĐƯỜNG LINK CHO CHUẨN (Không dùng 127.0.0.1 nữa)
             const res = await fetch('/api/dashboard-stats');
             const data = await res.json();
 
-            // 1. Cập nhật các con số Thống kê
+            // XỬ LÝ TRƯỜNG HỢP: CHƯA CÓ AI THI
+            if (data.total === 0) {
+                document.getElementById('txtAvgTheta').innerText = "0.00";
+                document.getElementById('txtTotalSubs').innerText = "0";
+                document.getElementById('recentTable').innerHTML = `
+                    <tr><td colspan="6" class="text-center p-8 text-slate-400">Chưa có bài thi nào được nộp.</td></tr>
+                `;
+                return; // Dừng hàm lại ở đây, không vẽ biểu đồ rác
+            }
+
+            // --- NẾU ĐÃ CÓ NGƯỜI THI THÌ CHẠY ĐOẠN NÀY ---
             document.getElementById('txtAvgTheta').innerText = (data.avg_theta > 0 ? "+" : "") + data.avg_theta;
             document.getElementById('txtTotalSubs').innerText = data.total;
 
-            // 2. Cập nhật Bảng dữ liệu gần đây
             const tbody = document.getElementById('recentTable');
             tbody.innerHTML = data.recent.map(s => `
                 <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition">
@@ -258,7 +268,6 @@
                 </tr>
             `).join('');
 
-            // 3. Vẽ lại biểu đồ hình chuông (Area Chart) với dữ liệu thực
             const ctxArea = document.getElementById('mainAreaChart').getContext('2d');
             let gradientFill = ctxArea.createLinearGradient(0, 0, 0, 300);
             gradientFill.addColorStop(0, 'rgba(79, 70, 229, 0.2)');
@@ -270,7 +279,7 @@
                     labels: ['-3', '-2', '-1', '0', '+1', '+2', '+3'],
                     datasets: [{
                         label: 'Số lượng học viên',
-                        data: data.distribution, // <--- DỮ LIỆU THẬT ĐƯỢC BƠM VÀO ĐÂY
+                        data: data.distribution, // Bơm dữ liệu thật vào đây
                         borderColor: '#4F46E5', backgroundColor: gradientFill,
                         borderWidth: 3, fill: true, tension: 0.4,
                         pointBackgroundColor: '#FFFFFF', pointBorderColor: '#4F46E5',
@@ -283,14 +292,6 @@
                     scales: { x: { grid: { display: false } }, y: { beginAtZero: true, grid: { borderDash: [5, 5] } } }
                 }
             });
-
-            // Vẽ Mini Chart (Demo cứng 75%)
-            new Chart(document.getElementById('miniChart1'), {
-                type: 'doughnut',
-                data: { datasets: [{ data: [75, 25], backgroundColor: ['#4F46E5', '#EEF2FF'], borderWidth: 0, cutout: '75%', borderRadius: [10, 0] }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { tooltip: { enabled: false } } }
-            });
-
         } catch (error) {
             console.error("Lỗi khi tải dữ liệu:", error);
         }

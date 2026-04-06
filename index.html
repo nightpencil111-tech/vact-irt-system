@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V-ACT | Hệ thống Đánh giá Năng lực chuẩn IRT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                    colors: { primary: '#4F46E5', secondary: '#0EA5E9' }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Hiệu ứng nền chuyển động nhẹ */
+        .bg-blob {
+            position: absolute;
+            filter: blur(80px);
+            z-index: -1;
+            opacity: 0.6;
+            animation: float 10s infinite ease-in-out alternate;
+        }
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(30px, -50px) scale(1.1); }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col relative overflow-hidden selection:bg-indigo-200">
+
+    <div class="bg-blob bg-indigo-300 w-96 h-96 rounded-full top-[-10%] left-[-10%]"></div>
+    <div class="bg-blob bg-sky-200 w-[500px] h-[500px] rounded-full bottom-[-20%] right-[-10%]" style="animation-delay: -5s;"></div>
+
+    <header class="w-full max-w-7xl mx-auto px-6 py-6 flex justify-between items-center z-10">
+        <div class="flex items-center gap-3">
+            <div class="bg-gradient-to-br from-indigo-600 to-blue-500 p-2.5 rounded-xl text-white shadow-lg shadow-indigo-200">
+                <i class="fas fa-layer-group text-xl"></i>
+            </div>
+            <span class="text-2xl font-extrabold tracking-tight text-slate-800">V-ACT<span class="text-indigo-600">.Edu</span></span>
+        </div>
+        <nav class="hidden md:flex gap-8 font-medium text-slate-600">
+            <a href="#" class="hover:text-indigo-600 transition">Về hệ thống</a>
+            <a href="#" class="hover:text-indigo-600 transition">Thuật toán IRT</a>
+            <a href="#" class="hover:text-indigo-600 transition">Hướng dẫn thi</a>
+        </nav>
+        <div>
+            <a href="/admin-zone?key=vact_admin_2026" class="text-sm font-bold text-slate-500 hover:text-indigo-600 transition border border-slate-200 bg-white/50 backdrop-blur-md px-5 py-2.5 rounded-full shadow-sm">
+                <i class="fas fa-lock mr-2"></i>Admin
+            </a>
+        </div>
+    </header>
+
+    <main class="flex-1 flex flex-col justify-center items-center text-center px-4 z-10 mt-10 md:mt-0">
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-600 font-semibold text-sm mb-8 animate-bounce">
+            <span class="relative flex h-3 w-3">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-3 w-3 bg-indigo-500"></span>
+            </span>
+            Hệ thống chấm điểm IRT đã online
+        </div>
+
+        <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight text-slate-900 max-w-4xl leading-tight mb-6">
+            Đánh giá Năng lực <br>
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-sky-500">Chuẩn xác tuyệt đối</span>
+        </h1>
+        
+        <p class="text-lg md:text-xl text-slate-500 max-w-2xl mb-12 leading-relaxed">
+            Nền tảng thi trắc nghiệm thích ứng ứng dụng thuật toán <b>IRT 3PL</b>. Quy đổi điểm chuẩn <b>1200</b> theo đúng cấu trúc kỳ thi ĐGNL ĐHQG-HCM.
+        </p>
+
+        <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+            <a href="/exam" class="px-8 py-4 rounded-2xl bg-indigo-600 text-white font-bold text-lg hover:bg-indigo-700 hover:-translate-y-1 transition-all duration-300 shadow-xl shadow-indigo-200 flex items-center justify-center gap-3">
+                <i class="fas fa-play"></i> Bắt đầu thi ngay
+            </a>
+            <a href="/dashboard" class="px-8 py-4 rounded-2xl bg-white text-slate-700 border border-slate-200 font-bold text-lg hover:bg-slate-50 hover:-translate-y-1 transition-all duration-300 shadow-sm flex items-center justify-center gap-3">
+                <i class="fas fa-chart-pie text-indigo-500"></i> Xem Thống kê
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mt-20 text-left">
+            <div class="bg-white/60 backdrop-blur-md p-6 rounded-3xl border border-slate-100 shadow-sm">
+                <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-xl mb-4"><i class="fas fa-brain"></i></div>
+                <h3 class="font-bold text-lg mb-2">Đề thi 120 câu</h3>
+                <p class="text-slate-500 text-sm">Cấu trúc Ngôn ngữ, Toán/Logic và Giải quyết vấn đề với thời gian 150 phút.</p>
+            </div>
+            <div class="bg-white/60 backdrop-blur-md p-6 rounded-3xl border border-slate-100 shadow-sm">
+                <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center text-xl mb-4"><i class="fas fa-calculator"></i></div>
+                <h3 class="font-bold text-lg mb-2">Thuật toán IRT</h3>
+                <p class="text-slate-500 text-sm">Chấm điểm dựa trên độ khó câu hỏi và năng lực thực tế, không chỉ dựa vào tỷ lệ % đúng.</p>
+            </div>
+            <div class="bg-white/60 backdrop-blur-md p-6 rounded-3xl border border-slate-100 shadow-sm">
+                <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center text-xl mb-4"><i class="fas fa-chart-line"></i></div>
+                <h3 class="font-bold text-lg mb-2">Thang điểm 1200</h3>
+                <p class="text-slate-500 text-sm">Quy đổi điểm Theta sang hệ quy chiếu 1200 chuẩn mực của ĐHQG-HCM.</p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="text-center py-8 text-sm text-slate-400 z-10">
+        <p>© 2026 V-ACT EdTech. Phát triển với <i class="fas fa-heart text-red-400"></i> cho giáo dục.</p>
+    </footer>
+
+</body>
+</html>
